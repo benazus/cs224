@@ -1,0 +1,87 @@
+
+// A rule that I found on the internet
+//Rule of thumb: Always read inputs from PORTx and write outputs to LATx.
+// If you need to read what you set an output to, read LATx.
+void main() {
+  int switches;
+  int delay;
+  char toBeReflected = 0b11111111;
+  int i;
+  char bitmask = 0b00000001;
+  char leftToRight = 0b00000000;
+  int temp;
+
+  //AD1PCFG = 0xFFFF;   // Configure AN pins as digital I/O
+  JTAGEN_bit = 0;     // Disable JTAG    -> This is neccessary for some unknown reasons
+
+  TRISA = 0xFF00;          // set direction to be output
+  TRISF = 0xFFFF;
+  PORTASET = 0b11111111;
+  PORTFSET = 0b11111111;
+  
+  while(1) {
+    //Setting the speed
+    if(  PORTFbits.RF8 == 0 || PORTFbits.RF12 == 0) {
+         delay = 1;
+    }
+    else {
+         delay = -1;
+    }
+    
+    if( PORTFbits.RF0 == 0 && PORTFbits.RF1 == 0) {
+       //Do nothing
+    }
+    else if( PORTFbits.RF0 == 0 && delay > 0) {
+        if( PORTA == 0b00000000) {
+            PORTASET = 0b11111111;
+        }
+        PORTA -= 1;
+        
+        //Delay
+        if(  PORTFbits.RF8 == 0 && PORTFbits.RF12 == 0) {
+                 Delay_ms(500);
+        }
+        else if( PORTFbits.RF8 == 0){
+                Delay_ms(250);
+        }
+        else if( PORTFbits.RF12 == 0) {
+                 Delay_ms(750);
+        }
+    }
+
+    else if( PORTFbits.RF1 == 0 && delay > 0) {
+        if( toBeReflected == 0b00000000) {
+            toBeReflected = 0b11111111;
+        }
+        toBeReflected -= 1;
+        leftToRight = 0b00000000;
+        
+
+        //Reflecting the bits
+        for( i = 0; i < 8; i++) {
+             leftToRight = leftToRight << 1;
+             temp = toBeReflected & bitmask;
+             temp = temp >> i;
+             leftToRight = leftToRight + temp;
+             bitmask = bitmask << 1;
+        }
+        //leftToRight >> 1;
+        
+        bitmask = 0b00000001;
+        PORTA = leftToRight;
+        //LATA += 1;
+        //PORTA = toBeReflected;
+        leftToRight = 0b00000000;
+        //Delay
+        if(  PORTFbits.RF8 == 0 && PORTFbits.RF12 == 0) {
+                 Delay_ms(500);
+        }
+        else if( PORTFbits.RF8 == 0){
+                Delay_ms(250);
+        }
+        else if( PORTFbits.RF12 == 0) {
+                 Delay_ms(750);
+        }
+    }
+  }
+}

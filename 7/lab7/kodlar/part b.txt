@@ -1,0 +1,111 @@
+int getHex(int value);
+void show(int value);
+int fibonacci(int a, int b);
+
+int main(void){
+
+
+    // Initialization
+    JTAGEN_bit = 0; // Mandatory, no idea why
+    
+    // Tried using different ports on my beti, but these below worked the best
+    PORTACLR = 0b11111111; // Set all to 0
+    TRISD = 0xFF00; // Output
+    PORTDCLR = 0b11111111; // Set all to 0
+    TRISA = 0xFF00; // Output
+
+    while(1){
+         int i;
+         int firstValue = 0;
+         int secondValue = 1;
+
+         for(i = 0; i < 19; i++){
+              int thirdValue = fibonacci(firstValue, secondValue);
+              show(thirdValue);
+              firstValue = secondValue;
+              secondValue = thirdValue;
+         }
+         secondValue = 1;
+         firstValue = 0;
+    }
+
+    return 0;
+}
+
+int getHex(int value){ // Hex values for 7seg: ie, 0x3f shows a '0' and 0x06 shows a '1' etc.
+    if(value == 0)
+         return 0x3F;
+    else if(value == 1)
+         return 0x06;
+    else if(value == 2)
+         return 0x5B;
+    else if(value == 3)
+         return 0x4F;
+    else if(value == 4)
+         return 0x66;
+    else if(value == 5)
+         return 0x6D;
+    else if(value == 6)
+         return 0x7D;
+    else if(value == 7)
+         return 0x07;
+    else if(value == 8)
+         return 0x7F;
+    else if(value == 9)
+         return 0x6F;
+    else
+         return 0x40;
+}
+
+ void show(int value){
+     int digit4 = (value / 1000) % 10;
+     int digit2 = (value / 10) % 10;
+     int digit3 = (value / 100) % 10;
+     int digit1 = value % 10;
+
+     int i;
+
+     // I believe since this code has both low level and high level stuff in it,
+     // I couldn't decleare variables below at anywhere i wanted, so i used this order and somehow it worked:D
+     // Also, since we decrease jal instructions in assembly version of this code,
+     // it will work even faster by calling the values once and keeping them
+     int second = getHex(digit2);
+     int fourth = getHex(digit4);
+     int first = getHex(digit1);
+     int third = getHex(digit3);
+     
+     PORTACLR = 0b11111111;
+     PORTDCLR = 0b11111111;
+     
+     for(i = 0;  i < 100; i++) { // Counter, counts to Number*Clock Pulse and then returns
+       // Enable from PORTD starts from more significant bits, data from PORTA
+
+       PORTDSET = 0b00000100;
+       PORTASET = second;
+       Delay_ms(1);
+       PORTDCLR = 0b00000100;
+       PORTACLR = second;
+
+       PORTDSET = 0b00000001;
+       PORTASET = fourth;
+       Delay_ms(1);
+       PORTACLR = fourth;
+       PORTDCLR = 0b00000001;
+
+       PORTDSET = 0b00001000;
+       PORTASET = first;
+       Delay_ms(1);
+       PORTDCLR = 0b00001000;
+       PORTACLR = first;
+
+       PORTDSET = 0b00000010;
+       PORTASET = third;
+       Delay_ms(1);
+       PORTACLR = third;
+       PORTDCLR = 0b00000010;
+     }
+}
+
+int fibonacci(int a, int b){
+    return a + b;
+}

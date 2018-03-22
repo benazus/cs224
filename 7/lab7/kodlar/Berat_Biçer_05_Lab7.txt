@@ -1,0 +1,214 @@
+void main(void){
+    int speed = 0; // 0 means slow, 1 means high;
+    int msb = 0; // 0 means MSB on the left, 1 means MSB on the right;
+    int i,j,k;
+    int count = 0;
+    int bitmask = 0b00000001;
+    int digit0, digit1, digit2, digit3, digit4, digit5, digit6, digit7;
+
+    // RD7: MSB on the left, RD4: MSB on the left
+    // RD3: High Speed, RD0: Low Speed
+    // RD4: Enable
+
+    JTAGEN_bit = 0;
+    TRISA = 0xff00; // output
+    TRISD = 0xffff; // input
+    PORTACLR = 0b11111111;
+    PORTAINV = 0b11111111;
+    while(1){
+           count = 0;
+           while(PORTDbits.RD7 == 1){
+                 count = 0;
+                 while(PORTDbits.RD3 == 0 && PORTDbits.RD7 == 1){ // Fast, delay around 100 ms
+                      Delay_ms(50);
+                      count++;
+                      PORTACLR = 0b11111111;
+                      PORTASET = ~count;
+                 }
+
+                 while(PORTDbits.RD3 == 1 && PORTDbits.RD0 == 0 && PORTDbits.RD7 == 1){ // Slow, delay around 250 ms
+                      Delay_ms(100);
+                      count++;
+                      PORTACLR = 0b11111111;
+                      PORTASET = ~count;
+                 }
+                 while(PORTDbits.RD3 == 1 && PORTDbits.RD0 == 1 && PORTDbits.RD7 == 1){ // Slowest, delay around 500
+                      Delay_ms(500);
+                      count++;
+                      PORTACLR = 0b11111111;
+                      PORTASET = ~count;
+                 }
+           }
+           
+/*unsigned n = ...;
+unsigned kthbit = (1 << k) & n;*/
+           
+           while(PORTDbits.RD7 == 0){
+                 count = 0;
+                 while(PORTDbits.RD3 == 0 && PORTDbits.RD7 == 0){ // Fast, delay around 100 ms
+                      Delay_ms(50);
+                      count++;
+                      digit0 = bitmask & count;
+                      digit1 = ((bitmask << 1) & count) >> 1;
+                      digit2 = ((bitmask << 2) & count) >> 2;
+                      digit3 = ((bitmask << 3) & count) >> 3;
+                      digit4 = ((bitmask << 4) & count) >> 4;
+                      digit5 = ((bitmask << 5) & count) >> 5;
+                      digit6 = ((bitmask << 6) & count) >> 6;
+                      digit7 = ((bitmask << 7) & count) >> 7;
+                      PORTA = ~(digit0*128 + digit1*64 + digit2*32 + digit3*16 + digit4*8 + digit5*4 + digit6*2 + digit7);
+                 }
+
+                 while(PORTDbits.RD3 == 1 && PORTDbits.RD0 == 0 && PORTDbits.RD7 == 0){ // Slow, delay around 250 ms
+                      Delay_ms(100);
+                      count++;
+                      /*PORTA = ((count >> 7) + ((count<<1)>>7)*2 + ((count<<2)>>7)*4 + ((count<<3)>>7)*8 +
+                     ((count<<4)>>7)*16 + ((count<<5)>>7)*32 +  ((count<<6)>>7)*64 + ((count<<7)>>7)*128);*/
+                      digit0 = bitmask & count;
+                      digit1 = ((bitmask << 1) & count) >> 1;
+                      digit2 = ((bitmask << 2) & count) >> 2;
+                      digit3 = ((bitmask << 3) & count) >> 3;
+                      digit4 = ((bitmask << 4) & count) >> 4;
+                      digit5 = ((bitmask << 5) & count) >> 5;
+                      digit6 = ((bitmask << 6) & count) >> 6;
+                      digit7 = ((bitmask << 7) & count) >> 7;
+                      PORTA = ~(digit0*128 + digit1*64 + digit2*32 + digit3*16 + digit4*8 + digit5*4 + digit6*2 + digit7);
+                 }
+                 while(PORTDbits.RD3 == 1 && PORTDbits.RD0 == 1 && PORTDbits.RD7 == 0){ // Slowest, delay around 500
+                      Delay_ms(500);
+                      count++;
+                      /*PORTA = ((count >> 7) + ((count<<1)>>7)*2 + ((count<<2)>>7)*4 + ((count<<3)>>7)*8 +
+                     ((count<<4)>>7)*16 + ((count<<5)>>7)*32 +  ((count<<6)>>7)*64 + ((count<<7)>>7)*128);*/
+                      digit0 = bitmask & count;
+                      digit1 = ((bitmask << 1) & count) >> 1;
+                      digit2 = ((bitmask << 2) & count) >> 2;
+                      digit3 = ((bitmask << 3) & count) >> 3;
+                      digit4 = ((bitmask << 4) & count) >> 4;
+                      digit5 = ((bitmask << 5) & count) >> 5;
+                      digit6 = ((bitmask << 6) & count) >> 6;
+                      digit7 = ((bitmask << 7) & count) >> 7;
+                      PORTA = ~(digit0*128 + digit1*64 + digit2*32 + digit3*16 + digit4*8 + digit5*4 + digit6*2 + digit7);
+                 }
+           }
+     }
+}
+
+
+
+
+
+
+
+
+
+int getHex(int value);
+void show(int value);
+int fibonacci(int a, int b);
+
+int main(void){
+
+
+    // Initialization
+    JTAGEN_bit = 0; // Mandatory, no idea why
+    
+    // Tried using different ports on my beti, but these below worked the best
+    PORTACLR = 0b11111111; // Set all to 0
+    TRISD = 0xFF00; // Output
+    PORTDCLR = 0b11111111; // Set all to 0
+    TRISA = 0xFF00; // Output
+
+    while(1){
+         int i;
+         int firstValue = 0;
+         int secondValue = 1;
+
+         for(i = 0; i < 19; i++){
+              int thirdValue = fibonacci(firstValue, secondValue);
+              show(thirdValue);
+              firstValue = secondValue;
+              secondValue = thirdValue;
+         }
+         secondValue = 1;
+         firstValue = 0;
+    }
+
+    return 0;
+}
+
+int getHex(int value){ // Hex values for 7seg: ie, 0x3f shows a '0' and 0x06 shows a '1' etc.
+    if(value == 0)
+         return 0x3F;
+    else if(value == 1)
+         return 0x06;
+    else if(value == 2)
+         return 0x5B;
+    else if(value == 3)
+         return 0x4F;
+    else if(value == 4)
+         return 0x66;
+    else if(value == 5)
+         return 0x6D;
+    else if(value == 6)
+         return 0x7D;
+    else if(value == 7)
+         return 0x07;
+    else if(value == 8)
+         return 0x7F;
+    else if(value == 9)
+         return 0x6F;
+    else
+         return 0x40;
+}
+
+ void show(int value){
+     int digit4 = (value / 1000) % 10;
+     int digit2 = (value / 10) % 10;
+     int digit3 = (value / 100) % 10;
+     int digit1 = value % 10;
+
+     int i;
+
+     // I believe since this code has both low level and high level stuff in it,
+     // I couldn't decleare variables below at anywhere i wanted, so i used this order and somehow it worked:D
+     // Also, since we decrease jal instructions in assembly version of this code,
+     // it will work even faster by calling the values once and keeping them
+     int second = getHex(digit2);
+     int fourth = getHex(digit4);
+     int first = getHex(digit1);
+     int third = getHex(digit3);
+     
+     PORTACLR = 0b11111111;
+     PORTDCLR = 0b11111111;
+     
+     for(i = 0;  i < 100; i++) { // Counter, counts to Number*Clock Pulse and then returns
+       // Enable from PORTD starts from more significant bits, data from PORTA
+
+       PORTDSET = 0b00000100;
+       PORTASET = second;
+       Delay_ms(1);
+       PORTDCLR = 0b00000100;
+       PORTACLR = second;
+
+       PORTDSET = 0b00000001;
+       PORTASET = fourth;
+       Delay_ms(1);
+       PORTACLR = fourth;
+       PORTDCLR = 0b00000001;
+
+       PORTDSET = 0b00001000;
+       PORTASET = first;
+       Delay_ms(1);
+       PORTDCLR = 0b00001000;
+       PORTACLR = first;
+
+       PORTDSET = 0b00000010;
+       PORTASET = third;
+       Delay_ms(1);
+       PORTACLR = third;
+       PORTDCLR = 0b00000010;
+     }
+}
+
+int fibonacci(int a, int b){
+    return a + b;
+}

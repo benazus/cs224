@@ -1,0 +1,94 @@
+void main(void){
+    int speed = 0; // 0 means slow, 1 means high;
+    int msb = 0; // 0 means MSB on the left, 1 means MSB on the right;
+    int i,j,k;
+    int count = 0;
+    int bitmask = 0b00000001;
+    int digit0, digit1, digit2, digit3, digit4, digit5, digit6, digit7;
+
+    // RD7: MSB on the left, RD4: MSB on the left
+    // RD3: High Speed, RD0: Low Speed
+    // RD4: Enable
+
+    JTAGEN_bit = 0;
+    TRISA = 0xff00; // output
+    TRISD = 0xffff; // input
+    PORTACLR = 0b11111111;
+    PORTAINV = 0b11111111;
+    while(1){
+           count = 0;
+           while(PORTDbits.RD7 == 1){
+                 count = 0;
+                 while(PORTDbits.RD3 == 0 && PORTDbits.RD7 == 1){ // Fast, delay around 100 ms
+                      Delay_ms(50);
+                      count++;
+                      PORTACLR = 0b11111111;
+                      PORTASET = ~count;
+                 }
+
+                 while(PORTDbits.RD3 == 1 && PORTDbits.RD0 == 0 && PORTDbits.RD7 == 1){ // Slow, delay around 250 ms
+                      Delay_ms(100);
+                      count++;
+                      PORTACLR = 0b11111111;
+                      PORTASET = ~count;
+                 }
+                 while(PORTDbits.RD3 == 1 && PORTDbits.RD0 == 1 && PORTDbits.RD7 == 1){ // Slowest, delay around 500
+                      Delay_ms(500);
+                      count++;
+                      PORTACLR = 0b11111111;
+                      PORTASET = ~count;
+                 }
+           }
+           
+/*unsigned n = ...;
+unsigned kthbit = (1 << k) & n;*/
+           
+           while(PORTDbits.RD7 == 0){
+                 count = 0;
+                 while(PORTDbits.RD3 == 0 && PORTDbits.RD7 == 0){ // Fast, delay around 100 ms
+                      Delay_ms(50);
+                      count++;
+                      digit0 = bitmask & count;
+                      digit1 = ((bitmask << 1) & count) >> 1;
+                      digit2 = ((bitmask << 2) & count) >> 2;
+                      digit3 = ((bitmask << 3) & count) >> 3;
+                      digit4 = ((bitmask << 4) & count) >> 4;
+                      digit5 = ((bitmask << 5) & count) >> 5;
+                      digit6 = ((bitmask << 6) & count) >> 6;
+                      digit7 = ((bitmask << 7) & count) >> 7;
+                      PORTA = ~(digit0*128 + digit1*64 + digit2*32 + digit3*16 + digit4*8 + digit5*4 + digit6*2 + digit7);
+                 }
+
+                 while(PORTDbits.RD3 == 1 && PORTDbits.RD0 == 0 && PORTDbits.RD7 == 0){ // Slow, delay around 250 ms
+                      Delay_ms(100);
+                      count++;
+                      /*PORTA = ((count >> 7) + ((count<<1)>>7)*2 + ((count<<2)>>7)*4 + ((count<<3)>>7)*8 +
+                     ((count<<4)>>7)*16 + ((count<<5)>>7)*32 +  ((count<<6)>>7)*64 + ((count<<7)>>7)*128);*/
+                      digit0 = bitmask & count;
+                      digit1 = ((bitmask << 1) & count) >> 1;
+                      digit2 = ((bitmask << 2) & count) >> 2;
+                      digit3 = ((bitmask << 3) & count) >> 3;
+                      digit4 = ((bitmask << 4) & count) >> 4;
+                      digit5 = ((bitmask << 5) & count) >> 5;
+                      digit6 = ((bitmask << 6) & count) >> 6;
+                      digit7 = ((bitmask << 7) & count) >> 7;
+                      PORTA = ~(digit0*128 + digit1*64 + digit2*32 + digit3*16 + digit4*8 + digit5*4 + digit6*2 + digit7);
+                 }
+                 while(PORTDbits.RD3 == 1 && PORTDbits.RD0 == 1 && PORTDbits.RD7 == 0){ // Slowest, delay around 500
+                      Delay_ms(500);
+                      count++;
+                      /*PORTA = ((count >> 7) + ((count<<1)>>7)*2 + ((count<<2)>>7)*4 + ((count<<3)>>7)*8 +
+                     ((count<<4)>>7)*16 + ((count<<5)>>7)*32 +  ((count<<6)>>7)*64 + ((count<<7)>>7)*128);*/
+                      digit0 = bitmask & count;
+                      digit1 = ((bitmask << 1) & count) >> 1;
+                      digit2 = ((bitmask << 2) & count) >> 2;
+                      digit3 = ((bitmask << 3) & count) >> 3;
+                      digit4 = ((bitmask << 4) & count) >> 4;
+                      digit5 = ((bitmask << 5) & count) >> 5;
+                      digit6 = ((bitmask << 6) & count) >> 6;
+                      digit7 = ((bitmask << 7) & count) >> 7;
+                      PORTA = ~(digit0*128 + digit1*64 + digit2*32 + digit3*16 + digit4*8 + digit5*4 + digit6*2 + digit7);
+                 }
+           }
+     }
+}

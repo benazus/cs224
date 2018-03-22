@@ -1,0 +1,23 @@
+void main(){
+	TRISA=0xFF00;
+	PORTASET = 0b11111111;
+	TRISF = 0xFFFF;
+	PORTFSET = 0b11111111;
+	JTAGEN_bit = 0;
+
+	while(true){
+		if(PORTFbits.RF0 == 0) {
+			PORTA = PORTA - 1;
+			Delay_ms(500);	
+		}
+	}
+}
+
+void main() {
+	int prev1 = 0, prev2 = 0;
+	while(true){
+		fibbSum = prev1 + prev2;
+		prev2 = prev1;
+		prev1 = fibbSum;
+	}
+}

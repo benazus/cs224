@@ -1,0 +1,84 @@
+int hexIn7Seg(int digit) {
+    switch( digit) {
+            case 0: return 0x3F; break;
+            case 1: return 0x06; break;
+            case 2: return 0x5B; break;
+            case 3: return 0x4F; break;
+            case 4: return 0x66; break;
+            case 5: return 0x6D; break;
+            case 6: return 0x7D; break;
+            case 7: return 0x07; break;
+            case 8: return 0x7F; break;
+            case 9: return 0x6F; break;
+            default: return 0x40;
+    }
+}
+
+void display(int number) {
+     int i;
+     int digit1, digit2, digit3, digit4;
+     digit1 = number % 10;
+     digit2 = (number / 10) % 10;
+     digit3 =  (number / 100) % 10;
+     digit4 = (number / 1000) % 10;
+     PORTACLR = 0b11111111;
+     PORTDCLR = 0b11111111;
+     
+     for( i = 0;  i < 120; i++) {
+       PORTASET = hexIn7Seg(digit1);
+       PORTDSET = 0b00001000;
+       Delay_ms(3);
+
+       PORTACLR = hexIn7Seg(digit1);
+       PORTDCLR = 0b00001000;
+
+       PORTASET = hexIn7Seg(digit2);
+       PORTDSET = 0b00000100;
+       Delay_ms(3);
+
+       PORTACLR = hexIn7Seg(digit2);
+       PORTDCLR = 0b00000100;
+
+       PORTASET = hexIn7Seg(digit3);
+       PORTDSET = 0b00000010;
+       Delay_ms(3);
+
+       PORTACLR = hexIn7Seg(digit3);
+       PORTDCLR = 0b00000010;
+
+       PORTASET = hexIn7Seg(digit4);
+       PORTDSET = 0b00000001;
+       Delay_ms(3);
+
+       PORTACLR = hexIn7Seg(digit4);
+       PORTDCLR = 0b00000001;
+     }
+}
+
+
+void main() {
+   int i;
+   int num1 = 0;
+   int num2 = 1;
+   int next;
+  //AD1PCFG = 0xFFFF;   // Configure AN pins as digital I/O
+  JTAGEN_bit = 0;     // Disable JTAG    -> This is neccessary for some unknown reasons
+
+  TRISA = 0xFF00;          // set direction to be output
+  TRISD = 0xFF00;
+  PORTACLR = 0b11111111;
+  PORTDCLR = 0b11111111;
+
+  while(1) {
+           display(num1);
+           display(num2);
+           for( i = 0; i < 19; i++) {
+                 next = num1 + num2;
+                 num1 = num2;
+                 num2 = next;
+                 display(next);
+           }
+           num1 = 0;
+           num2 = 1;
+  }
+}
